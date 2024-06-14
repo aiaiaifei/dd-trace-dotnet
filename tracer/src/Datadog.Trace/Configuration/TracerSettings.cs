@@ -176,7 +176,7 @@ namespace Datadog.Trace.Configuration
                                 .AsDictionaryResult()
                                 .OverrideWith(
                                      RemapOtelTags(in otelTags),
-                                     () => new DefaultResult<IDictionary<string, string>>(new Dictionary<string, string>(), string.Empty))
+                                     _ => new DefaultResult<IDictionary<string, string>>(new Dictionary<string, string>(), string.Empty))
                                  // Filter out tags with empty keys or empty values, and trim whitespace
                                 .Where(kvp => !string.IsNullOrWhiteSpace(kvp.Key) && !string.IsNullOrWhiteSpace(kvp.Value))
                                 .ToDictionary(kvp => kvp.Key.Trim(), kvp => kvp.Value.Trim());
@@ -201,7 +201,7 @@ namespace Datadog.Trace.Configuration
             MetadataSchemaVersion = config
                                    .WithKeys(ConfigurationKeys.MetadataSchemaVersion)
                                    .GetAs(
-                                        () => new DefaultResult<SchemaVersion>(SchemaVersion.V0, "V0"),
+                                        _ => new DefaultResult<SchemaVersion>(SchemaVersion.V0, "V0"),
                                         converter: x => x switch
                                         {
                                             "v1" or "V1" => SchemaVersion.V1,
@@ -236,7 +236,7 @@ namespace Datadog.Trace.Configuration
 
             CustomSamplingRulesFormat = config.WithKeys(ConfigurationKeys.CustomSamplingRulesFormat)
                                               .GetAs(
-                                                   getDefaultValue: () => new DefaultResult<string>(SamplingRulesFormat.Regex, "regex"),
+                                                   getDefaultValue: _ => new DefaultResult<string>(SamplingRulesFormat.Regex, "regex"),
                                                    converter: value =>
                                                    {
                                                        // We intentionally report invalid values as "valid" in the converter,
@@ -363,7 +363,7 @@ namespace Datadog.Trace.Configuration
                                       : s)
                         .ToArray();
 
-            var getDefaultPropagationHeaders = () => new DefaultResult<string[]>(
+            var getDefaultPropagationHeaders = (bool _) => new DefaultResult<string[]>(
                 [ContextPropagationHeaderStyle.Datadog, ContextPropagationHeaderStyle.W3CTraceContext],
                 $"{ContextPropagationHeaderStyle.Datadog},{ContextPropagationHeaderStyle.W3CTraceContext}");
 
@@ -448,7 +448,7 @@ namespace Datadog.Trace.Configuration
             DbmPropagationMode = config
                                 .WithKeys(ConfigurationKeys.DbmPropagationMode)
                                 .GetAs(
-                                     () => new DefaultResult<DbmPropagationLevel>(DbmPropagationLevel.Disabled, nameof(DbmPropagationLevel.Disabled)),
+                                     _ => new DefaultResult<DbmPropagationLevel>(DbmPropagationLevel.Disabled, nameof(DbmPropagationLevel.Disabled)),
                                      converter: x => ToDbmPropagationInput(x) ?? ParsingResult<DbmPropagationLevel>.Failure(),
                                      validator: null);
 
@@ -1105,7 +1105,7 @@ namespace Datadog.Trace.Configuration
         {
             var configurationDictionary = config
                    .WithKeys(key)
-                   .AsDictionary(allowOptionalMappings: true, () => new Dictionary<string, string>());
+                   .AsDictionary(allowOptionalMappings: true, _ => new Dictionary<string, string>());
 
             if (configurationDictionary == null)
             {
