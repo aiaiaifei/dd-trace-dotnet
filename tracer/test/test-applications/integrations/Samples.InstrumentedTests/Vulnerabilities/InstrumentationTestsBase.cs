@@ -364,7 +364,7 @@ public class InstrumentationTestsBase : IDisposable
         return RuntimeInformation.IsOSPlatform(System.Runtime.InteropServices.OSPlatform.Windows);
     }
 
-    public static object TestRealDDBBLocalCall(Func<object> expression)
+    public static T TestRealDDBBLocalCall<T>(Func<T> expression)
     {
         if (!IsWindows())
         {
@@ -374,7 +374,7 @@ public class InstrumentationTestsBase : IDisposable
             }
             catch (InvalidOperationException)
             {
-                return null;
+                return default(T);
             }
         }
         else
