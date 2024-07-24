@@ -10,6 +10,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using Datadog.Trace.AppSec;
 using Datadog.Trace.Configuration;
@@ -20,6 +22,7 @@ using Datadog.Trace.Iast.Settings;
 using Datadog.Trace.Iast.Telemetry;
 using Datadog.Trace.Logging;
 using Datadog.Trace.Sampling;
+using static Datadog.Trace.Configuration.ConfigurationKeys;
 using static Datadog.Trace.Telemetry.Metrics.MetricTags;
 
 namespace Datadog.Trace.Iast;
@@ -50,6 +53,7 @@ internal static partial class IastModule
     private static readonly Lazy<EvidenceRedactor?> EvidenceRedactorLazy;
     private static readonly Func<TaintedObject, bool> Always = (x) => true;
     private static IastSettings iastSettings = Iast.Instance.Settings;
+    private static ConditionalWeakTable<object, DbRecordData> dataBaseRows = new ConditionalWeakTable<object, DbRecordData>();
 
     static IastModule()
     {
@@ -781,5 +785,60 @@ internal static partial class IastModule
             Log.Error(ex, "Error while checking for xpath injection.");
             return IastModuleResponse.Empty;
         }
+    }
+
+    internal static void RegisterDbRecord(object instance)
+    {
+        var tracer = Tracer.Instance;
+        if (!iastSettings.Enabled || iastSettings.DataBaseRowsToTaint <= 0)
+        {
+            return;
+        }
+
+        var recordData = dataBaseRows.GetOrCreateValue(instance);
+        recordData.Count++;
+    }
+
+    internal static void UnregisterDbRecord(object instance)
+    {
+        var tracer = Tracer.Instance;
+        if (!iastSettings.Enabled || iastSettings.DataBaseRowsToTaint <= 0)
+        {
+            return;
+        }
+
+        dataBaseRows.Remove(instance);
+    }
+
+    internal static void AddDbValue(object instance, string? column, string value)
+    {
+        var tracer = Tracer.Instance;
+        if (!iastSettings.Enabled || dataBaseRows is null)
+        {
+            return;
+        }
+
+        if (iastSettings.DataBaseRowsToTaint > 0)
+        {
+            if (!dataBaseRows.TryGetValue(instance, out var recordData))
+            {
+                return;
+            }
+
+            if (recordData.Count > iastSettings.DataBaseRowsToTaint)
+            {
+                return;
+            }
+        }
+
+        var scope = tracer.ActiveScope as Scope;
+        var currentSpan = scope?.Span;
+        var traceContext = currentSpan?.Context?.TraceContext;
+        traceContext?.IastRequestContext?.AddDbValue(column, value);
+    }
+
+    private class DbRecordData
+    {
+        public int Count { get; set; } = 0;
     }
 }
