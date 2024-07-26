@@ -1,11 +1,12 @@
-﻿Metric:
+﻿Condition:
 Json:
 {
-    "len": [
-        {
-            "ref": "String"
-        }
-    ]
+  "gt": [
+    {
+      "ref": "DoubleNumber"
+    },
+    0.1
+  ]
 }
 Expression: (
     scopeMember,
@@ -31,8 +32,8 @@ Expression: (
     var StringArg = (string)scopeMemberArray[10].Value;
     var CollectionArg = (List<string>)scopeMemberArray[11].Value;
     var NestedObjectArg = (DebuggerExpressionLanguageTests.TestStruct.NestedObject)scopeMemberArray[12].Value;
-    var $dd_el_result = (double)this.String.Length;
+    var $dd_el_result = this.DoubleNumber > 0.1d;
 
     return $dd_el_result;
 }
-Result: 12
+Result: True
