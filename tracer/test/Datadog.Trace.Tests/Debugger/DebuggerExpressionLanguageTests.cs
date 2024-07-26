@@ -338,6 +338,8 @@ namespace Datadog.Trace.Tests.Debugger
 
             public bool BooleanValue;
 
+            public string EmptyString { get; set; }
+
             internal class NestedObject
             {
 #pragma warning disable SA1401
