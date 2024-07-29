@@ -19,7 +19,7 @@ internal static partial class IastModule
         var res = WebUtility.HtmlEncode(text);
         try
         {
-            if (!iastSettings.Enabled || string.IsNullOrEmpty(text))
+            if (!IastSettings.Enabled || string.IsNullOrEmpty(text))
             {
                 return res;
             }
