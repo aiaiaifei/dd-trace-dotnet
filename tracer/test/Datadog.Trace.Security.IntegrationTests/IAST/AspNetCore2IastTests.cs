@@ -550,6 +550,7 @@ public abstract class AspNetCore2IastTestsFullSampling : AspNetCore2IastTests
     }
 
     [SkippableFact]
+    [Trait("Category", "ArmUnsupported")]
     [Trait("RunOnWindows", "True")]
     public async Task TestIastStoredXssRequest()
     {
@@ -572,6 +573,7 @@ public abstract class AspNetCore2IastTestsFullSampling : AspNetCore2IastTests
     }
 
     [SkippableFact]
+    [Trait("Category", "ArmUnsupported")]
     [Trait("RunOnWindows", "True")]
     public async Task TestIastStoredXssEscapedRequest()
     {
