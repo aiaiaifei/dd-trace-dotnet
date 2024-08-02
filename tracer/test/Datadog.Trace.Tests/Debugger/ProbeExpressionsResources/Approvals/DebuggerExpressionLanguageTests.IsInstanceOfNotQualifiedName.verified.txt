@@ -10,7 +10,7 @@ Json:
         "String"
       ]
     },
-    "string"
+    "DebuggerExpressionLanguageTests"
   ]
 }
 Expression: (
@@ -37,8 +37,8 @@ Expression: (
     var StringArg = (string)scopeMemberArray[10].Value;
     var CollectionArg = (List<string>)scopeMemberArray[11].Value;
     var NestedObjectArg = (DebuggerExpressionLanguageTests.TestStruct.NestedObject)scopeMemberArray[12].Value;
-    var $dd_el_result = this.String is string;
+    var $dd_el_result = this.String is DebuggerExpressionLanguageTests;
 
     return $dd_el_result;
 }
-Result: True
+Result: False
